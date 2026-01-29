@@ -1,0 +1,188 @@
+// src/pages/AciBorderFiling.tsx
+
+import React, { useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { useWatch, type FieldPath } from 'react-hook-form';
+import { useBorderForm, type BorderFormValues } from '../hooks/useAciBorderFiling';
+import { PORT_INFO } from '../assets/ports';
+
+
+const AciBorderFiling = () => {
+    const { form, proNumberOptions, portOptions } = useBorderForm('PARS');
+    const { register, setValue, control, handleSubmit, formState } = form;
+    const shipmentType = useWatch({ control, name: 'shipmentType' });
+    const port = useWatch({ control, name: 'port' });
+
+    const onSubmit = (values: BorderFormValues) => {
+        console.log(values);
+    };
+
+    const generateCCN = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const carrierCode = "TEST";
+        const uniqueId = uuidv4().replace(/-/g, '').substring(0, 10);
+        const newCcn = `${carrierCode}${uniqueId.toUpperCase()}`;
+        setValue('ccn', newCcn, { shouldValidate: true });
+    };
+
+    useEffect(() => {
+        const foundPort = PORT_INFO.find(p => p.port === port);
+        if (!foundPort) return;
+
+        setValue('subLocation', foundPort.subLocation, { shouldValidate: true });
+        setValue('releaseOffice', foundPort.releaseOffice, { shouldValidate: true });
+    }, [port, setValue]);
+
+    return (
+        <div className="max-w-4xl mx-auto p-6 bg-white border border-slate-300 shadow-lg rounded-sm font-sans">
+
+            {/* HEADER: BINDING TO EXISTING SHIPMENT */}
+            <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
+                <div className="flex-1">
+                    <label className="block text-[10px] font-black text-blue-900 uppercase italic">Internal Reference</label>
+                    <select {...register('proNumber')}>
+                        {proNumberOptions.map(opt => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
+                    </select>
+                    {formState.errors.proNumber && (
+                        <p className="mt-1 text-sm text-red-600">
+                            {String(formState.errors.proNumber.message)}
+                        </p>
+                    )}
+                </div>
+                <div className="text-right">
+                    <h2 className="text-sm font-black uppercase">ACI eManifest Filing</h2>
+                </div>
+            </div>
+
+            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                {/* 1. SHIPMENT TYPE SELECTOR */}
+                <div className="flex gap-2">
+                    {['PARS', 'INPARS'].map((type) => {
+                        return (
+                            <button
+                                key={type}
+                                type="button"
+                                onClick={() => setValue('shipmentType', type as 'PARS' | 'INPARS')}
+                                className={`flex-1 py-2 px-4 text-xs font-bold border transition-all cursor-pointer ${shipmentType === type
+                                    ? 'bg-slate-900 border-slate-900 text-white'
+                                    : 'bg-white border-slate-300 text-slate-400 hover:bg-slate-50'
+                                    }`}
+                            >
+                                {type}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* 2. CORE BORDER DATA */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Column A: Identification */}
+                    <div className="space-y-4">
+                        <div className="flex flex-col">
+
+                            <label className="text-[10px] font-bold text-slate-600 uppercase">Cargo Control Number (CCN)</label>
+                            <input {...register('ccn')} type="text" placeholder="SCAC + Shipment ID" className="border-b border-slate-400 py-1 font-mono uppercase focus:border-blue-600 outline-none" />
+                            {formState.errors.ccn && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    {String(formState.errors.ccn.message)}
+                                </p>
+                            )}
+                            <button onClick={generateCCN} className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-sm shadow-lg text-xs tracking-tighter transition-transform active:scale-95 uppercase'>Generate CCN</button>
+                        </div>
+
+
+                        <div className={`flex flex-col transition-all ${shipmentType === 'INPARS' ? 'opacity-100' : 'opacity-30'}`}>
+                            <label className="text-[10px] font-bold text-slate-600 uppercase">Sub-Location Code (Warehouse)</label>
+                            <input {...register('subLocation' as FieldPath<BorderFormValues>)}
+                                type="text"
+                                disabled={shipmentType !== 'INPARS'}
+                                placeholder="Required for INPARS"
+                                className="border-b border-slate-400 py-1 font-mono outline-none"
+                            />
+                            {formState.errors['subLocation' as keyof typeof formState.errors] && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    {String(formState.errors['subLocation' as keyof typeof formState.errors]?.message)}
+                                </p>
+                            )}
+
+                            <label className="text-[10px] font-bold text-slate-600 uppercase">Release Office</label>
+                            <input
+                                {...register('releaseOffice')}
+                                type="text"
+                                disabled={shipmentType !== 'INPARS'}
+                                placeholder="Required for INPARS"
+                                className="border-b border-slate-400 py-1 font-mono outline-none"
+                            />
+                            {formState.errors['releaseOffice' as keyof typeof formState.errors] && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    {String(formState.errors['releaseOffice' as keyof typeof formState.errors]?.message)}
+                                </p>
+                            )}
+
+                        </div>
+
+                    </div>
+
+                    {/* Column B: Routing */}
+                    <div className="space-y-4">
+                        <div className="flex flex-col">
+                            <label className="text-[10px] font-bold text-slate-600 uppercase">First Port of Arrival</label>
+                            <select {...register('port')}>
+                                <option value="">Select Port</option>
+                                {portOptions.map(opt => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                            {formState.errors['port' as keyof typeof formState.errors] && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    {String(formState.errors['port' as keyof typeof formState.errors]?.message)}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col">
+                                <label className="text-[10px] font-bold text-slate-600 uppercase">Estimated Date</label>
+                                <input {...register('date')} type="date" className="border-b border-slate-400 py-1 outline-none" />
+                                {formState.errors.date && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {String(formState.errors.date?.message)}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col">
+                                <label className="text-[10px] font-bold text-slate-600 uppercase">Estimated Time</label>
+                                <input {...register('time')} type="time" className="border-b border-slate-400 py-1 outline-none" />
+                                {formState.errors.time && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {String(formState.errors.time?.message)}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 3. TRANSMISSION ACTION */}
+                <div className="mt-8 border-t pt-6 flex justify-between items-center">
+                    <p className="text-[9px] text-slate-400 max-w-xs uppercase leading-tight font-bold italic">
+                        Note: Data must be transmitted to CBSA at least 1 hour prior to arrival at the border.
+                    </p>
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-sm shadow-lg text-xs tracking-tighter transition-transform active:scale-95 uppercase">
+                        Create ACI Documents
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+};
+
+export default AciBorderFiling;
