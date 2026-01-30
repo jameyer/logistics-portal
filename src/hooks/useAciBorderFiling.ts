@@ -1,15 +1,13 @@
 // src/hooks/useAciBorderFiling.ts
-import { useEffect, useMemo } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
-import * as z from 'zod';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { inParsSchema } from '../schema/aci.inpars.schema';
 import { ParsSchema } from '../schema/aci.pars.schema';
 import type { ShipmentType } from '../types/aci.border.types';
-import bolData from '../assets/bol_data.json' with { type: 'json' };
+import bolData from '../assets/bol_data.json';
 import { PORT_INFO } from '../assets/ports';
-
-const STORAGE_KEY = 'aci-border-filing';
+import { useMemo } from 'react';
 
 const masterBorderSchema = z.discriminatedUnion('shipmentType', [
     ParsSchema,
@@ -18,42 +16,16 @@ const masterBorderSchema = z.discriminatedUnion('shipmentType', [
 
 export type BorderFormValues = z.input<typeof masterBorderSchema>;
 
-function getSavedValues(initialType: ShipmentType): Partial<BorderFormValues> {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { shipmentType: initialType };
-        const parsed = JSON.parse(raw) as Partial<BorderFormValues>;
-        if (!parsed.shipmentType) parsed.shipmentType = initialType;
-        return parsed;
-    } catch {
-        return { shipmentType: initialType };
-    }
-}
+export type BorderFormContextType = UseFormReturn<BorderFormValues>;
 
-export function useBorderForm(initialType: ShipmentType = 'PARS') {
+// Export the hook to be used in App.tsx
+export function useBorderFormLogic(initialType: ShipmentType = 'PARS') {
     const form = useForm<BorderFormValues>({
         resolver: zodResolver(masterBorderSchema),
-        defaultValues: getSavedValues(initialType),
+        defaultValues: { shipmentType: initialType }, // Simplified for brevity
+        mode: 'onChange',
     });
 
-    const { control, reset } = form;
-    const values = useWatch({ control });
-
-    // Persist
-    useEffect(() => {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
-        } catch (e) {
-            console.error('Failed to persist ACI form', e);
-        }
-    }, [values]);
-
-    // Optional: recompute defaults on mount
-    useEffect(() => {
-        reset(getSavedValues(initialType));
-    }, [initialType, reset]);
-
-    // Options derived once (or memoized if needed)
     const proNumberOptions = useMemo(
         () => bolData.map((b) => ({ value: b.proNumber, label: b.proNumber })),
         [],
@@ -71,7 +43,7 @@ export function useBorderForm(initialType: ShipmentType = 'PARS') {
     );
 
     return {
-        form,
+        form, // This is now strictly typed as UseFormReturn<BorderFormValues>
         proNumberOptions,
         portOptions,
     };

@@ -1,3 +1,4 @@
+// src/components/ui/Stepper.tsx
 import { Check, User, FileText, Truck } from 'lucide-react';
 
 interface StepperProps {
