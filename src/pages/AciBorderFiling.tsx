@@ -1,5 +1,5 @@
+// src/pages/AciBorderFiling.tsx
 import React, { useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { useFormContext, useWatch, type FieldErrors, type FieldPath } from 'react-hook-form';
 import type { BorderFormValues } from '../hooks/useAciBorderFiling';
 import { PORT_INFO } from '../assets/ports';
@@ -38,13 +38,9 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
         }
     };
 
-    const generateCCN = (e: React.MouseEvent) => {
-        e.preventDefault();
-        const carrierCode = "TEST";
-        const uniqueId = uuidv4().replace(/-/g, '').substring(0, 10);
-        const newCcn = `${carrierCode}${uniqueId.toUpperCase()}`;
-        setValue('ccn', newCcn, { shouldValidate: true });
-    };
+    const proNumber = useWatch({ control, name: 'proNumber' });
+    // If carrierCode is static, define it; if it's dynamic, useWatch it
+    const carrierCode = "TEST";
 
     useEffect(() => {
         const foundPort = PORT_INFO.find(p => p.port === port);
@@ -55,6 +51,17 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
             setValue('releaseOffice', foundPort.releaseOffice, { shouldValidate: true });
         }
     }, [port, shipmentType, setValue]);
+
+    useEffect(() => {
+        const generateCCN = () => {
+            if (!proNumber) return;
+            // Combine carrierCode and proNumber for a valid ACI CCN
+            const newCcn = `${carrierCode}${proNumber}`.toUpperCase();
+            setValue('ccn', newCcn, { shouldValidate: true });
+        };
+        generateCCN();
+    }, [proNumber, setValue]);
+
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white border border-slate-300 shadow-lg rounded-sm font-sans">
@@ -106,9 +113,6 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
                                     placeholder="SCAC + Shipment ID"
                                     className="border-b border-slate-400 py-1 font-mono uppercase focus:border-blue-600 outline-none flex-1"
                                 />
-                                <button onClick={generateCCN} className='bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 rounded-sm text-xs uppercase'>
-                                    Generate
-                                </button>
                             </div>
                             {errors.ccn && <p className="mt-1 text-sm text-red-600">{errors.ccn.message}</p>}
                         </div>
@@ -138,11 +142,11 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
 
                     {/* Column B: Routing */}
                     <div className="space-y-4">
-                        <div className={`flex flex-col transition-all ${shipmentType === 'PARS' ? 'opacity-100' : 'opacity-30'}`}>
+                        <div className={`flex flex-col transition-all `}>
                             <label className="text-[10px] font-bold text-slate-600 uppercase">First Port of Arrival</label>
                             <select
                                 {...register('port' as FieldPath<BorderFormValues>)}
-                                disabled={shipmentType !== 'PARS'}
+
                             >
                                 <option value="">Select Port</option>
                                 {portOptions.map(opt => (

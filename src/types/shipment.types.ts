@@ -1,3 +1,4 @@
+// src/types/shipment.types.ts
 export interface Shipment {
     date: string;
     bolNumber: string;
@@ -39,7 +40,9 @@ export interface Shipment {
     DriverInfo: {
         name: string;
         dob: string;
+        truckNumber: string;
         truckLicenseNumber: string;
+        trailerNumber: string;
         trailerLicenseNumber: string;
     };
 }

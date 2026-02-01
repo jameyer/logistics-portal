@@ -1,14 +1,14 @@
 // src/components/ui/Stepper.tsx
-import { Check, User, FileText, Truck } from 'lucide-react';
+import { Check, FilePlus, FileText, UploadCloud } from 'lucide-react';
 
 interface StepperProps {
     currentStep: number;
 }
 
 const steps = [
-    { id: 1, name: 'Consignor Info', icon: User },
-    { id: 2, name: 'Manifest Details', icon: FileText },
-    { id: 3, name: 'Review & PDF', icon: Truck },
+    { id: 1, name: 'Create eManifest', icon: FilePlus },
+    { id: 2, name: 'Forms & Review', icon: FileText },
+    { id: 3, name: 'Submit EDI', icon: UploadCloud },
 ];
 
 export function Stepper({ currentStep }: StepperProps) {

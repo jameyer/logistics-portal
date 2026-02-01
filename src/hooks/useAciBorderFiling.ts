@@ -22,7 +22,11 @@ export type BorderFormContextType = UseFormReturn<BorderFormValues>;
 export function useBorderFormLogic(initialType: ShipmentType = 'PARS') {
     const form = useForm<BorderFormValues>({
         resolver: zodResolver(masterBorderSchema),
-        defaultValues: { shipmentType: initialType }, // Simplified for brevity
+        defaultValues: {
+            shipmentType: initialType,
+            // Set the first proNumber from your JSON as the default
+            proNumber: bolData[0]?.proNumber || '',
+        },
         mode: 'onChange',
     });
 

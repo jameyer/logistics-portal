@@ -9,17 +9,20 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "bols": "node ./src/utils/faker.bol.create.js",
-    "express":"node ./src/assets/express.js"
+    "express": "node ./src/assets/express.js",
+    "grid": "node ./src/utils/drawGrid.cjs",
+    "check": "node ./src/utils/checkFields.cjs"
   },
   "dependencies": {
+    "@bwip-js/browser": "^4.8.0",
     "@faker-js/faker": "^10.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.1.18",
-    "bwip-js": "^4.8.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "express": "^5.2.1",
     "lucide-react": "^0.562.0",
+    "pdf-lib": "^1.17.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.1",

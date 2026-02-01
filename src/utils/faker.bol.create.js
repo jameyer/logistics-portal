@@ -7,8 +7,8 @@ const generateStaticBOLs = (count = 10) => {
     for (let i = 0; i < count; i++) {
         bols.push({
             date: faker.date.recent().toLocaleDateString(),
-            bolNumber: `BOL-${faker.string.alphanumeric(10).toUpperCase()}`,
-            proNumber: `PRO${faker.string.numeric(7)}`, // This will be your search key
+            bolNumber: `BL-${faker.string.alphanumeric(10).toUpperCase()}`,
+            proNumber: `${faker.string.numeric(10)}`, // This will be your search key
             trailerNumber: faker.vehicle.vrm(),
             Shipper: {
                 name: faker.company.name(),
@@ -48,7 +48,9 @@ const generateStaticBOLs = (count = 10) => {
                 dob: faker.date
                     .birthdate({ min: 21, max: 65, mode: 'age' })
                     .toLocaleDateString(),
+                truckNumber: faker.number.int({ min: 10000, max: 99999 }),
                 truckLicenseNumber: faker.vehicle.vrm(),
+                trailerNumber: faker.number.int({ min: 10000, max: 99999 }),
                 trailerLicenseNumber: faker.vehicle.vrm(),
             },
         });

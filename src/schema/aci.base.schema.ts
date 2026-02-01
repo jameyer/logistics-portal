@@ -7,4 +7,5 @@ export const baseBorderSchema = z.object({
     ccn: z.string().min(1, 'CCN is required'),
     date: z.string().min(1, 'date is required'),
     time: z.string().min(1, 'time is required'),
+    port: z.string().min(1, 'Port is required'),
 });
