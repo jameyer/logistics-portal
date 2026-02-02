@@ -1,4 +1,4 @@
-
+import { clsx } from 'clsx';
 import React, { useEffect, useState } from 'react';
 import BOL_DATA from '../assets/bol_data.json';
 import { useFormContext } from 'react-hook-form';
@@ -116,10 +116,13 @@ const AciDocuments = () => {
                     <button
                         key={docName}
                         onClick={() => setSelectedDoc(docName)}
-                        className={`px-6 py-3 text-sm font-bold border-r border-slate-100 transition-colors ${selectedDoc === docName
-                            ? 'bg-blue-600 text-white'
-                            : 'text-slate-600 hover:bg-slate-50'
-                            }`}
+                        className={clsx(
+                            'px-6 py-3 text-sm font-bold border-r border-slate-100 transition-colors',
+                            {
+                                'bg-blue-600 text-white': selectedDoc === docName,
+                                'text-slate-600 hover:bg-slate-50': selectedDoc !== docName,
+                            }
+                        )}
                     >
                         {docName}
                     </button>

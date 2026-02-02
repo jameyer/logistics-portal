@@ -1,4 +1,4 @@
-// src/pages/AciBorderFiling.tsx
+import { clsx } from 'clsx';
 import React, { useEffect } from 'react';
 import { useFormContext, useWatch, type FieldErrors, type FieldPath } from 'react-hook-form';
 import type { BorderFormValues } from '../hooks/useAciBorderFiling';
@@ -90,10 +90,13 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
                             key={type}
                             type="button"
                             onClick={() => setValue('shipmentType', type as 'PARS' | 'INPARS')}
-                            className={`flex-1 py-2 px-4 text-xs font-bold border transition-all cursor-pointer ${shipmentType === type
-                                ? 'bg-slate-900 border-slate-900 text-white'
-                                : 'bg-white border-slate-300 text-slate-400 hover:bg-slate-50'
-                                }`}
+                            className={clsx(
+                                'flex-1 py-2 px-4 text-xs font-bold border transition-all cursor-pointer',
+                                {
+                                    'bg-slate-900 border-slate-900 text-white': shipmentType === type,
+                                    'bg-white border-slate-300 text-slate-400 hover:bg-slate-50': shipmentType !== type,
+                                }
+                            )}
                         >
                             {type}
                         </button>
@@ -117,7 +120,7 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
                             {errors.ccn && <p className="mt-1 text-sm text-red-600">{errors.ccn.message}</p>}
                         </div>
 
-                        <div className={`flex flex-col transition-all ${shipmentType === 'INPARS' ? 'opacity-100' : 'opacity-30'}`}>
+                        <div className={clsx('flex flex-col transition-all', { 'opacity-100': shipmentType === 'INPARS', 'opacity-30': shipmentType !== 'INPARS' })}>
                             <label className="text-[10px] font-bold text-slate-600 uppercase">Sub-Location Code</label>
                             <input
                                 {...register('subLocation' as FieldPath<BorderFormValues>)}

@@ -103,7 +103,7 @@ async function checkFields() {
 
   // 3. Prepare font and colors
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  Object.entries(A8AFields).forEach(([key, field]) => {
+  Object.entries(A8AFields).forEach(([, field]) => {
     firstPage.drawText(field.value, {
         x: field.posx,
         y: field.posy,
