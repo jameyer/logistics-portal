@@ -2,7 +2,7 @@ import { clsx } from 'clsx';
 import React, { useEffect } from 'react';
 import { useFormContext, useWatch, type FieldErrors, type FieldPath } from 'react-hook-form';
 import type { BorderFormValues } from '../hooks/useAciBorderFiling';
-import { PORT_INFO } from '../assets/ports';
+import type { PortInfo } from '../types/aci.border.types';
 
 // Type guards for the discriminated union
 type ParsValues = Extract<BorderFormValues, { shipmentType: 'PARS' }>;
@@ -10,7 +10,7 @@ type InParsValues = Extract<BorderFormValues, { shipmentType: 'INPARS' }>;
 
 interface StepProps {
     onNext: () => void;
-    portOptions: Array<{ value: string; label: string; subLocation?: string; releaseOffice?: string }>;
+    portOptions: PortInfo[];
     proNumberOptions: Array<{ value: string; label: string }>;
 }
 
@@ -43,14 +43,14 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
     const carrierCode = "TEST";
 
     useEffect(() => {
-        const foundPort = PORT_INFO.find(p => p.port === port);
+        const foundPort = portOptions.find(p => p.port === port);
         if (!foundPort) return;
 
         if (shipmentType === 'INPARS') {
             setValue('subLocation', foundPort.subLocation, { shouldValidate: true });
             setValue('releaseOffice', foundPort.releaseOffice, { shouldValidate: true });
         }
-    }, [port, shipmentType, setValue]);
+    }, [port, shipmentType, setValue, portOptions]);
 
     useEffect(() => {
         const generateCCN = () => {
@@ -153,7 +153,7 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
                             >
                                 <option value="">Select Port</option>
                                 {portOptions.map(opt => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    <option key={opt.port} value={opt.port}>{opt.portName}</option>
                                 ))}
                             </select>
                             {parsErrors?.port && (

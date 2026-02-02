@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { inParsSchema } from '../schema/aci.inpars.schema';
 import { ParsSchema } from '../schema/aci.pars.schema';
 import type { ShipmentType } from '../types/aci.border.types';
-import bolData from '../assets/bol_data.json';
+import { useShipmentData } from './useShipmentData';
 import { PORT_INFO } from '../assets/ports';
 import { useMemo } from 'react';
 
@@ -20,31 +20,23 @@ export type BorderFormContextType = UseFormReturn<BorderFormValues>;
 
 // Export the hook to be used in App.tsx
 export function useBorderFormLogic(initialType: ShipmentType = 'PARS') {
+    const { shipments } = useShipmentData();
     const form = useForm<BorderFormValues>({
         resolver: zodResolver(masterBorderSchema),
         defaultValues: {
             shipmentType: initialType,
             // Set the first proNumber from your JSON as the default
-            proNumber: bolData[0]?.proNumber || '',
+            proNumber: shipments[0]?.proNumber || '',
         },
         mode: 'onChange',
     });
 
     const proNumberOptions = useMemo(
-        () => bolData.map((b) => ({ value: b.proNumber, label: b.proNumber })),
-        [],
+        () => shipments.map((b) => ({ value: b.proNumber, label: b.proNumber })),
+        [shipments],
     );
 
-    const portOptions = useMemo(
-        () =>
-            PORT_INFO.map((p) => ({
-                value: p.port,
-                label: p.portName,
-                subLocation: p.subLocation,
-                releaseOffice: p.releaseOffice,
-            })),
-        [],
-    );
+    const portOptions = useMemo(() => PORT_INFO, []);
 
     return {
         form, // This is now strictly typed as UseFormReturn<BorderFormValues>

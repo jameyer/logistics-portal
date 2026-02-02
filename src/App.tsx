@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FormProvider, type SubmitHandler } from 'react-hook-form';
 import AciBorderFiling from './pages/AciBorderFiling';
 import { Stepper } from './components/ui/Stepper';
@@ -47,7 +47,7 @@ function App() {
                         {currentStep === 2 && (
                             <div className="text-center py-4">
                                 {/* Render the document generator/viewer */}
-                                <AciDocuments />
+                                <AciDocuments portOptions={portOptions} />
 
                                 <div className="mt-8">
                                     <button

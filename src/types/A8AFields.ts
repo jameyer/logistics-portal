@@ -19,7 +19,27 @@ export interface A8AFields {
         posy: number;
         value: string;
     };
+        ConsigneeAdd: {
+        posx: number;
+        posy: number;
+        value: string;
+    };
+        ConsigneeSt: {
+        posx: number;
+        posy: number;
+        value: string;
+    };
     Shipper: {
+        posx: number;
+        posy: number;
+        value: string;
+    };
+        ShipperAdd: {
+        posx: number;
+        posy: number;
+        value: string;
+    };
+        ShipperSt: {
         posx: number;
         posy: number;
         value: string;

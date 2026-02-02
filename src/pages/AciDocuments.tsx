@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
-import React, { useEffect, useState } from 'react';
-import BOL_DATA from '../assets/bol_data.json';
+import { useEffect, useState } from 'react';
+import { useShipmentData } from '../hooks/useShipmentData';
 import { useFormContext } from 'react-hook-form';
 import {
     generateCoverSheet,
@@ -10,16 +10,17 @@ import {
     type CrnFields
 } from '../utils/pdfGenerator';
 import type { BorderFormValues } from '../hooks/useAciBorderFiling';
-
-
-
-// MOCK DATA - Replace with your actual import logic
-
+import type { PortInfo } from '../types/aci.border.types';
 
 type DocType = 'Cover Sheet' | 'Bill of Lading' | 'Commercial Invoice' | 'A8A';
 
-const AciDocuments = () => {
+interface AciDocumentsProps {
+    portOptions: PortInfo[];
+}
+
+const AciDocuments = ({ portOptions }: AciDocumentsProps) => {
     const { getValues } = useFormContext<BorderFormValues>();
+    const { getShipmentByProNumber } = useShipmentData();
     const [docUrls, setDocUrls] = useState<Record<string, string>>({});
     const [selectedDoc, setSelectedDoc] = useState<DocType>('Cover Sheet');
 
@@ -27,55 +28,69 @@ const AciDocuments = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+
     useEffect(() => {
         const createAllDocs = async () => {
             try {
                 const formData = getValues();
-                const shipmentData = BOL_DATA.find(s => s.proNumber === formData.proNumber);
+                const shipmentData = getShipmentByProNumber(formData.proNumber);
 
-                // 1. Explicitly trap missing data
                 if (!shipmentData) {
                     throw new Error(`CRITICAL: No BOL found for PRO Number "${formData.proNumber}". Check your mock data or the form input.`);
                 }
 
+                const selectedPort = portOptions.find(p => p.port === formData.port);
+
                 const crnData: CrnFields = {
-                    company: { value: "My Logistics Co", posx: 50, posy: 700 },
+                    company: { value: "Test Company", posx: 50, posy: 700 },
                     crn: { value: formData.ccn, posx: 50, posy: 680 },
                     barcode: { value: formData.ccn, posx: 50, posy: 640 },
                     portOfEntry: {
                         port: { value: formData.port, posx: 300, posy: 700 },
-                        portName: { value: "Port Name Lookup", posx: 350, posy: 700 }
+                        portName: { value: selectedPort?.portName || '', posx: 350, posy: 700 }
                     },
                     truckNumber: { value: shipmentData.DriverInfo.truckNumber, posx: 50, posy: 600 },
                     truckLicense: { value: shipmentData.DriverInfo.truckLicenseNumber, posx: 150, posy: 600 },
                     trailerLicense: { value: shipmentData.DriverInfo.trailerLicenseNumber, posx: 250, posy: 600 },
                     shipments: {
-                        shipment: { value: "1", posx: 50, posy: 550 },
+                        shipment: { value: formData.ccn, posx: 50, posy: 550 },
                         type: { value: formData.shipmentType, posx: 100, posy: 550 },
-                        transactionNumber: { value: formData.ccn, posx: 200, posy: 550 },
+                        transactionNumber: { value: "", posx: 200, posy: 550 },
                         consignee: { value: shipmentData.Consignee.name, posx: 400, posy: 550 }
                     }
                 };
 
-                const [coverUrl, bolUrl, invUrl, a8aUrl] = await Promise.all([
+                const docPromises = [
                     generateCoverSheet(crnData),
                     generateBol(shipmentData),
                     generateCommercialInvoice(shipmentData),
-                    generateA8A(shipmentData)
-                ]);
+                ];
 
-                setDocUrls({
+                if (formData.shipmentType === 'INPARS') {
+                    if (!selectedPort) {
+                        throw new Error(`CRITICAL: No port found for port code "${formData.port}".`);
+                    }
+                    docPromises.push(generateA8A(shipmentData, selectedPort, formData as Extract<BorderFormValues, { shipmentType: 'INPARS' }>));
+                }
+
+                const [coverUrl, bolUrl, invUrl, a8aUrl] = await Promise.all(docPromises);
+
+                const urls: Record<string, string> = {
                     'Cover Sheet': coverUrl,
                     'Bill of Lading': bolUrl,
                     'Commercial Invoice': invUrl,
-                    'A8A': a8aUrl
-                });
+                };
+
+                if (a8aUrl) {
+                    urls['A8A'] = a8aUrl;
+                }
+
+                setDocUrls(urls);
                 setIsLoading(false);
 
             } catch (error: unknown) {
-                // 2. Capture the real error message
                 const msg = error instanceof Error ? error.message : String(error);
-                console.error("PDF GENERATION FAILURE:", error); // Keep this for stack trace
+                console.error("PDF GENERATION FAILURE:", error);
                 setErrorMessage(msg);
                 setIsLoading(false);
             }

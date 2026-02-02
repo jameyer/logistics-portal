@@ -21,9 +21,29 @@ export const A8ALAYOUT: A8AFields = {
         posy: 668,
         value: 'Consignee',
     },
+    ConsigneeAdd: {
+        posx: 70,
+        posy: 658,
+        value: 'Consignee',
+    },
+    ConsigneeSt: {
+        posx: 70,
+        posy: 648,
+        value: 'Consignee',
+    },
     Shipper: {
         posx: 70,
         posy: 618,
+        value: 'Shipper',
+    },
+    ShipperAdd: {
+        posx: 70,
+        posy: 608,
+        value: 'Shipper',
+    },
+    ShipperSt: {
+        posx: 70,
+        posy: 598,
         value: 'Shipper',
     },
     acquittal: {
@@ -32,8 +52,8 @@ export const A8ALAYOUT: A8AFields = {
         value: 'Acquittal',
     },
     ccnBarcode: {
-        posx: 350,
-        posy: 675,
+        posx: 330,
+        posy: 625,
         value: 'CCN Barcode',
     },
     prevCCN: {

@@ -51,11 +51,11 @@ const generateStaticBOLs = (count = 10) => {
                 truckNumber: faker.number
                     .int({ min: 10000, max: 99999 })
                     .toString(),
-                truckLicenseNumber: faker.vehicle.vrm(),
+                truckLicenseNumber: `${faker.vehicle.vrm()}  (${faker.location.state({ abbreviated: true })})`,
                 trailerNumber: faker.number
                     .int({ min: 10000, max: 99999 })
                     .toString(),
-                trailerLicenseNumber: faker.vehicle.vrm(),
+                trailerLicenseNumber: `${faker.vehicle.vrm()}  (${faker.location.state({ abbreviated: true })})`,
             },
         });
     }

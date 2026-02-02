@@ -4,6 +4,7 @@ import type { Shipment } from '../types/shipment.types';
 import { v4 as uuidv4 } from 'uuid';
 import A8A from '../assets/A8A.pdf';
 import { A8ALAYOUT } from '../constants/A8ALayout';
+import type { BorderFormValues } from '../hooks/useAciBorderFiling';
 
 // --- Interfaces ---
 export interface FieldCoord {
@@ -39,6 +40,9 @@ function getUUIDCode() {
     // Pad with random numbers if the UUID didn't have enough digits
     return code.padEnd(6, Math.floor(Math.random() * 10).toString());
 }
+
+const crnGen = getUUIDCode();
+const crnNumber = `TEST00CRN${crnGen}`;
 // --- Layout Helpers ---
 
 // Auto-centers text horizontally
@@ -120,8 +124,6 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
     const font = await doc.embedFont(StandardFonts.Helvetica);
     const bold = await doc.embedFont(StandardFonts.HelveticaBold);
     const { width } = page.getSize();
-    const crnGen = getUUIDCode();
-    const crnNumber = `TEST00CRN${crnGen}`;
 
     // 1. Main Header
     drawCenteredText(page, 'ACI eManifest for Canada', font, 18, 750);
@@ -330,23 +332,74 @@ export async function generateCommercialInvoice(
     return createPdfUrl(pdfBytes);
 }
 
-export async function generateA8A(shipment: Shipment): Promise<string> {
+import type { PortInfo } from '../types/aci.border.types';
+
+type InParsFormValues = Extract<BorderFormValues, { shipmentType: 'INPARS' }>;
+
+export async function generateA8A(
+    shipment: Shipment,
+    portInfo: PortInfo,
+    formData: InParsFormValues,
+): Promise<string> {
     const existingPdfBytes = await fetch(A8A).then((res) => res.arrayBuffer());
     const doc = await PDFDocument.load(existingPdfBytes);
     const pages = doc.getPages();
-    const page = pages[0];
     const font = await doc.embedFont(StandardFonts.Helvetica);
-    Object.entries(A8ALAYOUT).forEach(([key, field]) => {
-        console.log(`${key} ${shipment.Contact}`);
 
-        page.drawText(field.value, {
-            x: field.posx,
-            y: field.posy,
-            size: 8,
-            font: font,
-            color: rgb(0, 0, 0),
+    const dataMap: Record<keyof typeof A8ALAYOUT, string> = {
+        usPort: `${portInfo.USPort} - ${portInfo.USPortName}`,
+        manifestFrom: portInfo.port,
+        manifestTo: formData.subLocation,
+        Consignee: shipment.Consignee.name,
+        ConsigneeAdd: shipment.Consignee.address,
+        ConsigneeSt: `${shipment.Consignee.city}, ${shipment.Consignee.state}  ${shipment.Consignee.zip}`,
+        Shipper: shipment.Shipper.name,
+        ShipperAdd: shipment.Shipper.address,
+        ShipperSt: `${shipment.Shipper.city}, ${shipment.Shipper.state}  ${shipment.Shipper.zip}`,
+        acquittal: '',
+        ccnBarcode: formData.ccn,
+        prevCCN: '',
+        noPkgs: shipment.ShipmentDetails.shippingUnits,
+        desc: shipment.ShipmentDetails.description,
+        weight: shipment.ShipmentDetails.weight,
+        foreignPOL: '',
+        locationOfGoods: '',
+        carrierName: 'TEST Company',
+        conveyanceId: `TR: ${shipment.DriverInfo.truckLicenseNumber}  TL: ${shipment.DriverInfo.trailerLicenseNumber}`,
+    };
+
+    const a8aBarcode = await createBarcode(formData.ccn);
+
+    if (a8aBarcode) {
+        const pngImageBytes = await fetch(a8aBarcode).then((res) =>
+            res.arrayBuffer(),
+        );
+        const barcodeImg = await doc.embedPng(pngImageBytes);
+        const dims = barcodeImg.scale(0.5);
+
+        for (const page of pages) {
+            page.drawImage(barcodeImg, {
+                x: A8ALAYOUT.ccnBarcode.posx,
+                y: A8ALAYOUT.ccnBarcode.posy,
+                width: dims.width,
+                height: dims.height,
+            });
+        }
+    }
+    for (const page of pages) {
+        Object.entries(A8ALAYOUT).forEach(([key, field]) => {
+            const value = dataMap[key as keyof typeof A8ALAYOUT];
+            if (value !== dataMap.ccnBarcode) {
+                page.drawText(value, {
+                    x: field.posx,
+                    y: field.posy,
+                    size: 8,
+                    font: font,
+                    color: rgb(0, 0, 0),
+                });
+            }
         });
-    });
+    }
 
     const pdfBytes = await doc.save();
     return createPdfUrl(pdfBytes);
