@@ -24,17 +24,17 @@ export interface Shipment {
     };
     ShipmentDetails: {
         shippingUnits: string;
-        package: number;
+        package: string;
         unitOfMeasure: string;
-        hazmat: boolean;
+        hazmat: string;
         description: string;
         nmfc: string;
         class: string;
         weight: string;
         dimensions: {
-            length: number;
-            width: number;
-            height: number;
+            length: string;
+            width: string;
+            height: string;
         };
     };
     DriverInfo: {

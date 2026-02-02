@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import BOL_DATA from '../assets/bol_data.json';
 import { useFormContext } from 'react-hook-form';
 import {
     generateCoverSheet,
@@ -9,25 +10,11 @@ import {
     type CrnFields
 } from '../utils/pdfGenerator';
 import type { BorderFormValues } from '../hooks/useAciBorderFiling';
-import type { Shipment } from '../types/shipment.types';
+
+
 
 // MOCK DATA - Replace with your actual import logic
-const BOL_DATA: Shipment[] = [
-    {
-        date: "2026-02-01",
-        bolNumber: "BOL123",
-        proNumber: "0673356093",
-        trailerNumber: "TRL555",
-        Shipper: { name: "Acme Corp", address: "123 Ind St", city: "Toronto", state: "ON", zip: "M5V 2T6" },
-        Consignee: { name: "Widget Inc", address: "456 Biz Rd", city: "Buffalo", state: "NY", zip: "14202" },
-        Contact: { name: "John Doe", phone: "555-1234" },
-        ShipmentDetails: {
-            shippingUnits: "10", package: 10, unitOfMeasure: "PLT", hazmat: false, description: "Widgets", nmfc: "12345", class: "50", weight: "1000",
-            dimensions: { length: 48, width: 40, height: 50 }
-        },
-        DriverInfo: { name: "Jane Driver", dob: "1980-01-01", truckNumber: "101", truckLicenseNumber: "LIC123", trailerNumber: "TRL555", trailerLicenseNumber: "TRL-LIC" }
-    }
-];
+
 
 type DocType = 'Cover Sheet' | 'Bill of Lading' | 'Commercial Invoice' | 'A8A';
 

@@ -30,17 +30,17 @@ const generateStaticBOLs = (count = 10) => {
             },
             ShipmentDetails: {
                 shippingUnits: faker.number.int({ min: 1, max: 20 }).toString(),
-                package: faker.number.int({ min: 1, max: 5 }),
+                package: faker.number.int({ min: 1, max: 5 }).toString(),
                 unitOfMeasure: 'PCS',
-                hazmat: faker.datatype.boolean(),
+                hazmat: faker.helpers.arrayElement(['Y', 'N']),
                 description: faker.commerce.productName(),
                 nmfc: `${faker.number.int({ min: 100, max: 999 })}-${faker.number.int({ min: 1, max: 9 })}`,
                 class: faker.helpers.arrayElement(['50', '70', '92.5']),
                 weight: faker.number.int({ min: 100, max: 5000 }).toString(),
                 dimensions: {
-                    length: faker.number.int({ min: 20, max: 120 }),
-                    width: faker.number.int({ min: 20, max: 100 }),
-                    height: faker.number.int({ min: 20, max: 100 }),
+                    length: faker.number.int({ min: 20, max: 120 }).toString(),
+                    width: faker.number.int({ min: 20, max: 100 }).toString(),
+                    height: faker.number.int({ min: 20, max: 100 }).toString(),
                 },
             },
             DriverInfo: {
@@ -48,9 +48,13 @@ const generateStaticBOLs = (count = 10) => {
                 dob: faker.date
                     .birthdate({ min: 21, max: 65, mode: 'age' })
                     .toLocaleDateString(),
-                truckNumber: faker.number.int({ min: 10000, max: 99999 }),
+                truckNumber: faker.number
+                    .int({ min: 10000, max: 99999 })
+                    .toString(),
                 truckLicenseNumber: faker.vehicle.vrm(),
-                trailerNumber: faker.number.int({ min: 10000, max: 99999 }),
+                trailerNumber: faker.number
+                    .int({ min: 10000, max: 99999 })
+                    .toString(),
                 trailerLicenseNumber: faker.vehicle.vrm(),
             },
         });

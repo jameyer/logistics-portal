@@ -1,6 +1,9 @@
 import { PDFDocument, rgb, StandardFonts, PDFFont, PDFPage } from 'pdf-lib';
 import { toCanvas } from '@bwip-js/browser';
 import type { Shipment } from '../types/shipment.types';
+import { v4 as uuidv4 } from 'uuid';
+import A8A from '../assets/A8A.pdf';
+import { A8ALAYOUT } from '../constants/A8ALayout';
 
 // --- Interfaces ---
 export interface FieldCoord {
@@ -29,7 +32,13 @@ export interface CrnFields {
 }
 
 // --- Helpers ---
+function getUUIDCode() {
+    // Generate UUID, remove all non-digits, then take the first 6
+    const code = uuidv4().replace(/\D/g, '').substring(0, 6);
 
+    // Pad with random numbers if the UUID didn't have enough digits
+    return code.padEnd(6, Math.floor(Math.random() * 10).toString());
+}
 // --- Layout Helpers ---
 
 // Auto-centers text horizontally
@@ -111,6 +120,8 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
     const font = await doc.embedFont(StandardFonts.Helvetica);
     const bold = await doc.embedFont(StandardFonts.HelveticaBold);
     const { width } = page.getSize();
+    const crnGen = getUUIDCode();
+    const crnNumber = `TEST00CRN${crnGen}`;
 
     // 1. Main Header
     drawCenteredText(page, 'ACI eManifest for Canada', font, 18, 750);
@@ -119,7 +130,7 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
     drawCenteredText(page, `Company: ${data.company.value}`, bold, 12, 720);
     drawCenteredText(
         page,
-        `Conveyance Reference Number: ${data.crn.value}`,
+        `Conveyance Reference Number: ${crnNumber}`,
         bold,
         12,
         700,
@@ -127,7 +138,7 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
 
     // 3. Barcode (Centered)
     if (data.barcode.value) {
-        const barcodeUrl = await createBarcode(data.barcode.value);
+        const barcodeUrl = await createBarcode(crnNumber);
         if (barcodeUrl) {
             const pngImageBytes = await fetch(barcodeUrl).then((res) =>
                 res.arrayBuffer(),
@@ -141,10 +152,6 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
                 width: dims.width,
                 height: dims.height,
             });
-
-            // Human readable text below barcode usually handled by bwip-js,
-            // but if you need to draw it manually to match the image exact font:
-            drawCenteredText(page, data.barcode.value, font, 10, 630);
         }
     }
 
@@ -324,48 +331,21 @@ export async function generateCommercialInvoice(
 }
 
 export async function generateA8A(shipment: Shipment): Promise<string> {
-    const doc = await PDFDocument.create();
-    const page = doc.addPage([612, 792]);
+    const existingPdfBytes = await fetch(A8A).then((res) => res.arrayBuffer());
+    const doc = await PDFDocument.load(existingPdfBytes);
+    const pages = doc.getPages();
+    const page = pages[0];
     const font = await doc.embedFont(StandardFonts.Helvetica);
-    const bold = await doc.embedFont(StandardFonts.HelveticaBold);
-    const { height } = page.getSize();
+    Object.entries(A8ALAYOUT).forEach(([key, field]) => {
+        console.log(`${key} ${shipment.Contact}`);
 
-    page.drawText('A8A - CARGO CONTROL DOCUMENT', {
-        x: 50,
-        y: height - 50,
-        size: 18,
-        font: bold,
-    });
-
-    const ccn = `CARRIER${shipment.proNumber}`;
-    const barcodeUrl = await createBarcode(ccn);
-
-    if (barcodeUrl) {
-        const pngImageBytes = await fetch(barcodeUrl).then((res) =>
-            res.arrayBuffer(),
-        );
-        const barcodeImg = await doc.embedPng(pngImageBytes);
-        const dims = barcodeImg.scale(0.5);
-
-        page.drawImage(barcodeImg, {
-            x: 400,
-            y: height - 100,
-            width: dims.width,
-            height: dims.height,
+        page.drawText(field.value, {
+            x: field.posx,
+            y: field.posy,
+            size: 8,
+            font: font,
+            color: rgb(0, 0, 0),
         });
-    }
-
-    page.drawText(`Carrier Code: CARRIER`, {
-        x: 50,
-        y: height - 100,
-        size: 10,
-        font,
-    });
-    page.drawText(`Cargo Control No: ${ccn}`, {
-        x: 50,
-        y: height - 115,
-        size: 10,
-        font,
     });
 
     const pdfBytes = await doc.save();
