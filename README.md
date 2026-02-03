@@ -1,72 +1,62 @@
-
-Logistics Portal
+# Logistics Portal
 
 ## Overview
 
-In order to get a truck across the border from US to Canada, the following documentation is needed and how I handled it.
+This application simulates the documentation workflow required to transport freight across the US-Canada border. In a real-world scenario, documents often come from several sources (imaging systems, manual entry, legacy databases). This project combines data entry and PDF generation into a single process.
 
-  ACI eManifest Lead Sheet with CRN Barcode - created in program.
-  PARS/InPars with CCN Barcode -  created in program
-  A8A - created in program.
-  Commercial Invoice - Created pdf that says "Commercial Invoice.  In real world, this comes from imaging.
-  BOL - Created BOL that says "Bill of Laden".  In real world, this comes from imaging.  I also added the CCN Barcode.
+It handles the creation of the following required documents:
 
-## Usage Notes 
+- **ACI eManifest Lead Sheet:** Includes the CRN Barcode.
+- **PARS/InPARS:** Includes the CCN Barcode.
+- **A8A:** Required for InPARS shipments.
+- **Commercial Invoice:** Generated as a standard PDF (simulating an imaged document).
+- **Bill of Lading (BOL):** Generated with the appended CCN Barcode (simulating an imaged document).
 
-scripts/faker.bol.create.js can be used to create 10 shipments or changed for more.  
-For port information, I looked it up online, I used 3 ports only.  Both files are in src/data.
+## Motivation
 
-Once shipments and ports are added (which I've included in src/data), the program can be ran.
+I supported customs at Yellow/Roadway. The original process for creating these PDFs involved several steps/systems. When outages occurred, identifying the point of failure was difficult.
 
-1st screen - 
+I built this application to demonstrate that entering data, generating PDFs, and saving records within a single program simplifies support and improves reliability.
 
-chose PARS or INPARS.
-chose a pro from the download.
-CCN should be automatically created from the pro.  I chose 'TEST' as the SCAC Code.
-Port can be chosen from dropdown.
-Only manual part is adding the date/time.
-Release Office and Sublocation are ONLY available on InPARS shipments.
-You must choose InPARS if you want an A8A to be created.
+## Setup and Data
 
-2nd Screen - 
+- **Shipment Data:** Run `scripts/faker.bol.create.js` to generate dummy shipment data. It defaults to 10 shipments but can be modified.
+- **Port Data:** Port information is stored in `src/data`. This project currently uses 3 specific ports for demonstration purposes.
 
-Documents are created on this screen with tabs across the top to verify correctness.  You may also print/download documents on this screen.
-For PARS:
-  Leadsheet
-  BOL
-  Commercial Invoice
+## Workflow
 
-For InPars:
-  Leadsheet
-  BOL
-  Commercial Invoice
-  A8A
+### Step 1: Shipment Entry
 
-3rd Screen - 
-  
-  Click the button to simulate sending the pdfs to an EDI provider.  If you wanted to save the pdfs, you can always click back and download.
-  Clicking back will reset the screen to make it possible to simulate sending again.
+The initial screen handles shipment classification and data entry:
 
-  ## Reason for Program
-    This answers the "WHY would anyone do this?"
+1.  **Select Type:** Choose **PARS** (Pre-arrival Review System) or **InPARS** (In-bond Pre-arrival Review System).
+2.  **Select Pro:** Choose a Pro number from the downloaded data.
+3.  **CCN Generation:** The Cargo Control Number (CCN) generates automatically from the Pro number using the SCAC code 'TEST'.
+4.  **Port Selection:** Select the crossing port from the dropdown.
+5.  **Release Office & Sublocation:** These fields appear only if **InPARS** is selected.
+6.  **Date/Time:** Manually enter the estimated arrival details.
 
-    Customs was one of the systems I supported when I worked at Yellow/Roadway.  Creating the pdfs necessary had several touchpoints. When it went down, finding exactly where the issue was presented a challenge.  I think if data was entered, pdfs created and saved on the system - all by the same program, support would have been a lot easier.
-  
-  
+**Note:** You must select **InPARS** to trigger A8A document creation.
 
+### Step 2: Document Verification
 
+This screen provides a tabbed view to verify the generated PDFs. You can view, print, or download the documents here.
 
+**PARS Documents:**
 
+- Leadsheet
+- BOL
+- Commercial Invoice
 
+**InPARS Documents:**
 
+- Leadsheet
+- BOL
+- Commercial Invoice
+- A8A
 
- 
+### Step 3: EDI Simulation
 
-
-
-
-
-
-
-
-
+- Click the simulation button to mimic sending the PDFs to an EDI provider.
+- If you need to save the PDFs locally, use the **Back** button to return to the previous screen and download them.
+- Clicking **Back** resets the workflow, allowing you to run the simulation again.
