@@ -61,7 +61,7 @@ const generateStaticBOLs = (count = 10) => {
     }
 
     fs.writeFileSync(
-        './src/assets/bol_data.json',
+        './src/data/bol_data.json',
         JSON.stringify(bols, null, 2),
     );
     console.log('✅ bol_data.json updated to match Shipment interface.');

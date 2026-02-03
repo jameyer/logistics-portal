@@ -8,7 +8,7 @@ interface StepperProps {
 const steps = [
     { id: 1, name: 'Create eManifest', icon: FilePlus },
     { id: 2, name: 'Forms & Review', icon: FileText },
-    { id: 3, name: 'Submit EDI', icon: UploadCloud },
+    { id: 3, name: 'Submit To EDI', icon: UploadCloud },
 ];
 
 export function Stepper({ currentStep }: StepperProps) {

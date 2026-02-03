@@ -14,6 +14,11 @@ export interface crnFields {
         posy: number;
         value: string;
     };
+    ETA: {
+        posx: number;
+        posy: number;
+        value: string;
+    };
     portOfEntry: {
         port: {
             posx: number;

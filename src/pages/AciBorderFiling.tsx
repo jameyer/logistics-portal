@@ -67,8 +67,8 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
         <div className="max-w-4xl mx-auto p-6 bg-white border border-slate-300 shadow-lg rounded-sm font-sans">
             <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
                 <div className="flex-1">
-                    <label className="block text-[10px] font-black text-blue-900 uppercase italic">Internal Reference</label>
-                    <select {...register('proNumber')}>
+                    <label htmlFor="proNumber" className="block text-[10px] font-black text-blue-900 uppercase italic">Internal Reference</label>
+                    <select id="proNumber" {...register('proNumber')}>
                         {proNumberOptions.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
@@ -146,8 +146,9 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
                     {/* Column B: Routing */}
                     <div className="space-y-4">
                         <div className={`flex flex-col transition-all `}>
-                            <label className="text-[10px] font-bold text-slate-600 uppercase">First Port of Arrival</label>
+                            <label htmlFor="port" className="text-[10px] font-bold text-slate-600 uppercase">First Port of Arrival</label>
                             <select
+                                id="port"
                                 {...register('port' as FieldPath<BorderFormValues>)}
 
                             >
@@ -163,14 +164,14 @@ const AciBorderFiling = ({ onNext, portOptions, proNumberOptions }: StepProps) =
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                                <label className="text-[10px] font-bold text-slate-600 uppercase">Estimated Date</label>
-                                <input {...register('date')} type="date" className="border-b border-slate-400 py-1 outline-none" />
+                                <label htmlFor="date" className="text-[10px] font-bold text-slate-600 uppercase">Estimated Date</label>
+                                <input id="date" {...register('date')} type="date" className="border-b border-slate-400 py-1 outline-none" />
                                 {errors.date && <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>}
                             </div>
 
                             <div className="flex flex-col">
-                                <label className="text-[10px] font-bold text-slate-600 uppercase">Estimated Time</label>
-                                <input {...register('time')} type="time" className="border-b border-slate-400 py-1 outline-none" />
+                                <label htmlFor="time" className="text-[10px] font-bold text-slate-600 uppercase">Estimated Time</label>
+                                <input id="time" {...register('time')} type="time" className="border-b border-slate-400 py-1 outline-none" />
                                 {errors.time && <p className="mt-1 text-sm text-red-600">{errors.time.message}</p>}
                             </div>
                         </div>

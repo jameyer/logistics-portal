@@ -52,7 +52,7 @@ export const A8ALAYOUT: A8AFields = {
         value: 'Acquittal',
     },
     ccnBarcode: {
-        posx: 330,
+        posx: 318,
         posy: 625,
         value: 'CCN Barcode',
     },

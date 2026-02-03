@@ -91,8 +91,8 @@ const A8AFields = {
 
 async function checkFields() {
   // 1. Define paths relative to this script
-  const inputPath = path.join(__dirname, '../assets/A8A.pdf');
-  const outputPath = path.join(__dirname, '../assets/A8A_check.pdf');
+  const inputPath = path.join(__dirname, '../src/assets/A8A.pdf');
+  const outputPath = path.join(__dirname, '../src/assets/A8A_check.pdf');
 
   // 2. Load the existing PDF
   const existingPdfBytes = fs.readFileSync(inputPath);

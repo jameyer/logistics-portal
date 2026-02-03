@@ -5,8 +5,8 @@ const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 
 async function drawGrid() {
   // 1. Define paths relative to this script
-  const inputPath = path.join(__dirname, '../assets/A8A.pdf');
-  const outputPath = path.join(__dirname, '../assets/A8A_with_grid.pdf');
+  const inputPath = path.join(__dirname, '../src/assets/A8A.pdf');
+  const outputPath = path.join(__dirname, '../src/assets/A8A_with_grid.pdf');
 
   // 2. Load the existing PDF
   const existingPdfBytes = fs.readFileSync(inputPath);

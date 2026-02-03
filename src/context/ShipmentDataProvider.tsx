@@ -1,7 +1,7 @@
 // src/context/ShipmentDataProvider.tsx
 import type { ReactNode } from 'react';
 import type { Shipments } from '../types/shipment.types';
-import BOL_DATA from '../../bol_data.json';
+import BOL_DATA from '../data/bol_data.json';
 import { ShipmentDataContext } from './ShipmentDataContext';
 
 export const ShipmentDataProvider = ({ children }: { children: ReactNode }) => {

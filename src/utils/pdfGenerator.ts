@@ -1,5 +1,5 @@
 import { PDFDocument, rgb, StandardFonts, PDFFont, PDFPage } from 'pdf-lib';
-import { toCanvas } from '@bwip-js/browser';
+import JsBarcode from 'jsbarcode';
 import type { Shipment } from '../types/shipment.types';
 import { v4 as uuidv4 } from 'uuid';
 import A8A from '../assets/A8A.pdf';
@@ -17,6 +17,7 @@ export interface CrnFields {
     company: FieldCoord;
     crn: FieldCoord;
     barcode: FieldCoord;
+    ETA: FieldCoord;
     portOfEntry: {
         port: FieldCoord;
         portName: FieldCoord;
@@ -93,15 +94,17 @@ function drawSectionHeader(
 
 async function createBarcode(text: string): Promise<string> {
     const canvas = document.createElement('canvas');
+
     try {
-        toCanvas(canvas, {
-            bcid: 'code128',
-            text: text,
-            scale: 3,
-            height: 10,
-            includetext: true,
-            textxalign: 'center',
+        JsBarcode(canvas, text, {
+            format: 'CODE128',
+            width: 3, // Width of the bars (roughly equivalent to scale)
+            height: 70, // Height in pixels (bwip's 10mm ≈ 40px)
+            displayValue: true, // Equivalent to includetext: true
+            textAlign: 'center',
+            margin: 10, // Adds whitespace safety margin
         });
+
         return canvas.toDataURL('image/png');
     } catch (e) {
         console.error('Barcode generation failed', e);
@@ -157,7 +160,19 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
         }
     }
 
-    // 4. Port
+    // 4. ETA
+
+    drawCenteredText(
+        page,
+        data.ETA.value,
+        bold,
+        12,
+        620
+    )
+
+    
+
+    // 5. Port
     drawCenteredText(
         page,
         `Port of Entry: ${data.portOfEntry.port.value}: ${data.portOfEntry.portName.value}`,
@@ -166,7 +181,7 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
         600,
     );
 
-    // 5. Truck Section
+    // 6. Truck Section
     const truckY = 570;
     drawSectionHeader(page, 'Truck and Trailer Information', bold, truckY);
 
@@ -192,7 +207,7 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
         truckY - 50,
     );
 
-    // 6. Shipments Section
+    // 7. Shipments Section
     const shipY = 480;
     drawSectionHeader(page, 'Shipments', bold, shipY);
 

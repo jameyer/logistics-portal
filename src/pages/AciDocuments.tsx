@@ -49,6 +49,7 @@ const AciDocuments = ({ portOptions }: AciDocumentsProps) => {
                         port: { value: formData.port, posx: 300, posy: 700 },
                         portName: { value: selectedPort?.portName || '', posx: 350, posy: 700 }
                     },
+                    ETA: { value: `ETA: ${formData.date} ${formData.time}`, posx: 50, posy: 660 },
                     truckNumber: { value: shipmentData.DriverInfo.truckNumber, posx: 50, posy: 600 },
                     truckLicense: { value: shipmentData.DriverInfo.truckLicenseNumber, posx: 150, posy: 600 },
                     trailerLicense: { value: shipmentData.DriverInfo.trailerLicenseNumber, posx: 250, posy: 600 },

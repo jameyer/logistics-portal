@@ -7,7 +7,7 @@ const port = 3000;
 
 // Option A: Create a specific API route that reads the file
 app.get('/api/bols', (req, res) => {
-    const filePath = path.join(process.cwd(), 'bol_data.json');
+    const filePath = path.join(process.cwd(), 'src/data/bol_data.json');
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
             return res

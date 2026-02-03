@@ -6,7 +6,7 @@ import { inParsSchema } from '../schema/aci.inpars.schema';
 import { ParsSchema } from '../schema/aci.pars.schema';
 import type { ShipmentType } from '../types/aci.border.types';
 import { useShipmentData } from './useShipmentData';
-import { PORT_INFO } from '../assets/ports';
+import { PORT_INFO } from '../data/ports';
 import { useMemo } from 'react';
 
 const masterBorderSchema = z.discriminatedUnion('shipmentType', [
