@@ -162,15 +162,7 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
 
     // 4. ETA
 
-    drawCenteredText(
-        page,
-        data.ETA.value,
-        bold,
-        12,
-        620
-    )
-
-    
+    drawCenteredText(page, data.ETA.value, bold, 12, 620);
 
     // 5. Port
     drawCenteredText(
@@ -254,7 +246,10 @@ export async function generateCoverSheet(data: CrnFields): Promise<string> {
     return createPdfUrl(pdfBytes);
 }
 
-export async function generateBol(shipment: Shipment): Promise<string> {
+export async function generateBol(
+    shipment: Shipment,
+    ccnNumber: string,
+): Promise<string> {
     const doc = await PDFDocument.create();
     const page = doc.addPage([612, 792]);
     const font = await doc.embedFont(StandardFonts.Helvetica);
@@ -281,7 +276,7 @@ export async function generateBol(shipment: Shipment): Promise<string> {
         font,
     });
 
-    const parsText = shipment.proNumber;
+    const parsText = ccnNumber;
     const barcodeUrl = await createBarcode(parsText);
     if (barcodeUrl) {
         const pngImageBytes = await fetch(barcodeUrl).then((res) =>
@@ -291,13 +286,13 @@ export async function generateBol(shipment: Shipment): Promise<string> {
         const dims = barcodeImg.scale(0.5);
 
         page.drawText('PARS / PRO NUMBER:', {
-            x: 400,
+            x: 370,
             y: height - 50,
             size: 8,
             font: bold,
         });
         page.drawImage(barcodeImg, {
-            x: 400,
+            x: 370,
             y: height - 90,
             width: dims.width,
             height: dims.height,

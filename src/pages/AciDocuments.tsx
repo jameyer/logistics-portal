@@ -63,7 +63,7 @@ const AciDocuments = ({ portOptions }: AciDocumentsProps) => {
 
                 const docPromises = [
                     generateCoverSheet(crnData),
-                    generateBol(shipmentData),
+                    generateBol(shipmentData,formData.ccn),
                     generateCommercialInvoice(shipmentData),
                 ];
 
