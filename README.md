@@ -47,6 +47,13 @@ For InPars:
   Click the button to simulate sending the pdfs to an EDI provider.  If you wanted to save the pdfs, you can always click back and download.
   Clicking back will reset the screen to make it possible to simulate sending again.
 
+  ## Reason for Program
+    This answers the "WHY would anyone do this?"
+
+    Customs was one of the systems I supported when I worked at Yellow/Roadway.  Creating the pdfs necessary had several touchpoints. When it went down, finding exactly where the issue was presented a challenge.  I think if data was entered, pdfs created and saved on the system - all by the same program, support would have been a lot easier.
+  
+  
+
 
 
 
